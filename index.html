@@ -1,0 +1,258 @@
+<!DOCTYPE html>
+<html lang="ar">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>عجلة هدية بوت ميرو 🎁</title>
+    <style>
+        body {
+            font-family: 'Arial', sans-serif;
+            text-align: center;
+            background: linear-gradient(to bottom, #e0c3fc, #8ec5fc);
+            margin: 0;
+            padding: 0;
+        }
+        h1 {
+            font-size: 35px;
+            color: #6b47dc;
+            margin-top: 50px;
+        }
+        .wheel-container {
+            margin: 40px auto;
+            position: relative;
+            width: 350px;
+            height: 350px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+        }
+        .wheel {
+            width: 100%;
+            height: 100%;
+            border-radius: 50%;
+            border: 8px solid #6b47dc;
+            background: conic-gradient(
+                #c59eff 0 22.5deg,
+                #b18aff 22.5deg 45deg,
+                #9d78ff 45deg 67.5deg,
+                #9a6aff 67.5deg 90deg,
+                #8e5fff 90deg 112.5deg,
+                #7a4fff 112.5deg 135deg,
+                #6943f5 135deg 157.5deg,
+                #6b47dc 157.5deg 180deg,
+                #6b47dc 180deg 202.5deg,
+                #6943f5 202.5deg 225deg,
+                #7a4fff 225deg 247.5deg,
+                #8e5fff 247.5deg 270deg,
+                #9a6aff 270deg 292.5deg,
+                #9d78ff 292.5deg 315deg,
+                #b18aff 315deg 337.5deg,
+                #c59eff 337.5deg 360deg
+            );
+            transform: rotate(0deg);
+            transition: transform 4s ease-out;
+            position: relative;
+        }
+        .pointer {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            width: 30px;
+            height: 30px;
+            background: #ff4500;
+            border: 4px solid white;
+            border-radius: 50%;
+            transform: translate(-50%, -50%);
+            z-index: 10;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+        }
+        .spin-button {
+            margin-top: 30px;
+            padding: 15px 40px;
+            font-size: 20px;
+            background-color: #6b47dc;
+            color: white;
+            border: none;
+            border-radius: 50px;
+            cursor: pointer;
+            transition: background-color 0.3s, transform 0.3s;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+        }
+        .spin-button:hover {
+            background-color: #8e6bf5;
+            transform: scale(1.1);
+        }
+        .sector {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            transform-origin: center;
+        }
+        .sector span {
+            position: absolute;
+            top: 80%;
+            left: 50%;
+            transform: translateX(-50%);
+            font-size: 18px;
+            font-weight: bold;
+            color: white;
+            text-shadow: 1px 1px 3px rgba(0, 0, 0, 0.7);
+        }
+        #form-container input {
+            width: 80%;
+            padding: 10px;
+            margin: 10px 0;
+            border: 2px solid #6b47dc;
+            border-radius: 10px;
+            font-size: 16px;
+        }
+        #form-container button {
+            padding: 10px 30px;
+            font-size: 18px;
+            background-color: #6b47dc;
+            color: white;
+            border: none;
+            border-radius: 25px;
+            cursor: pointer;
+            transition: 0.3s;
+        }
+        #form-container button:hover {
+            background-color: #8e6bf5;
+            transform: scale(1.05);
+        }
+        .message {
+            font-size: 18px;
+            color: #333;
+            margin: 20px 0;
+            font-weight: bold;
+        }
+    </style>
+</head>
+<body>
+    <h1>🎡عجلة حظ بوت ميرو  🎡</h1>
+    
+    <!-- الرسالة التحفيزية في البداية -->
+    <div class="message" id="initial-message">
+        عزيزي المستخدم يرجى منك ملء هذه المعلومات لضمان وصول حقك.
+        <br>✓إدارة بوت ميرو✓<br> 
+        <br></>
+        <strong>↓ حقول ادخال بياناتك ↓</strong>
+    </div>
+
+    <!-- نموذج إدخال البيانات -->
+    <div id="form-container">
+        <input type="text" id="account-name" placeholder="اسم الحساب (في التلجرام *بدون زخرفة )" required><br>
+        <input type="number" id="account-id" placeholder="ايدي حسابك في التلجرام (10 أرقام)" maxlength="10" required><br>
+        <input type="text" id="account-text" placeholder="يوزر الحساب (يجب أن يحتوي على @)" required><br>
+        <button onclick="validateForm()">متابعة</button>
+    </div>
+
+    <!-- رسالة عند ظهور العجلة -->
+    <div class="message" id="wheel-message" style="display:none;">
+        قم بتدوير العجلة مرة واحدة في كل يوم. انتبه لا تدورها مرتين في نفس اليوم لأنه سوف يتم خصم من نقاطك.
+    </div>
+
+    <!-- عجلة الحظ -->
+    <div class="wheel-container" id="wheel-container" style="display:none;">
+        <div class="pointer"></div>
+        <div id="wheel" class="wheel"></div>
+    </div>
+    <button class="spin-button" id="spin-btn" onclick="spinWheel()" style="display:none;">أدر العجلة</button>
+
+    <script>
+        const wheel = document.getElementById('wheel');
+        const sectors = [50, 100, 150, 200, 250, 300, 350, 400, 450, 500];
+        const sectorAngle = 360 / sectors.length;
+
+        // إضافة الأرقام إلى العجلة
+        sectors.forEach((value, index) => {
+            const angle = index * sectorAngle;
+            const sector = document.createElement('div');
+            sector.className = 'sector';
+            sector.style.transform = `rotate(${angle}deg)`;
+            sector.innerHTML = `<span style="transform: translateX(-50%)">${value}</span>`;
+            wheel.appendChild(sector);
+        });
+
+        function validateForm() {
+            const name = document.getElementById('account-name').value;
+            const id = document.getElementById('account-id').value;
+            const text = document.getElementById('account-text').value;
+
+            const namePattern = /^[a-zA-Z\u0600-\u06FF\s]+$/;  // اسم الحساب (عربي أو إنجليزي)
+            const idPattern = /^[0-9]{10}$/;  // ايدي الحساب (10 أرقام فقط)
+            const usernamePattern = /^@[\w_]+$/;  // اليوزر يجب أن يحتوي على @
+
+            if (!namePattern.test(name)) {
+                alert("الرجاء إدخال اسم حساب صحيح (عربي أو إنجليزي).");
+                return;
+            }
+            if (!idPattern.test(id)) {
+                alert("الرجاء إدخال ايدي حساب صحيح (أرقام فقط 10 أرقام).");
+                return;
+            }
+            if (!usernamePattern.test(text)) {
+                alert("الرجاء إدخال يوزر حساب صحيح (يجب أن يحتوي على @).");
+                return;
+            }
+
+            // إخفاء رسالة البداية
+            document.getElementById('initial-message').style.display = 'none';
+
+            // إظهار رسالة العجلة
+            document.getElementById('wheel-message').style.display = 'block';
+
+            // إخفاء نموذج البيانات
+            document.getElementById('form-container').style.display = 'none';
+
+            // إظهار العجلة وزر الدوران
+            document.getElementById('wheel-container').style.display = 'block';
+            document.getElementById('spin-btn').style.display = 'inline-block';
+        }
+
+ function spinWheel() {
+            const randomSector = Math.floor(Math.random() * sectors.length);
+            const degrees = sectorAngle * randomSector + 360 * 5; // دوران أكثر
+            wheel.style.transform = `rotate(${degrees}deg)`;
+
+            setTimeout(() => {
+                const result = sectors[randomSector];
+                // عرض رسالة النتيجة
+                alert(`مبروك! ربحت ${result}`);
+
+                // تنفيذ الإرسال بعد ضغط "OK"
+                sendToTelegram(result);
+            }, 4000); // انتظار انتهاء الدوران
+        }
+
+        function sendToTelegram(result) {
+            const spinButton = document.getElementById('spin-btn');
+            spinButton.innerHTML = 'جارٍ الإرسال...';
+            spinButton.disabled = true;
+
+            const name = document.getElementById('account-name').value;
+            const id = document.getElementById('account-id').value;
+            const username = document.getElementById('account-text').value;
+
+            const telegramApiUrl = `https://api.telegram.org/bot7841572342:AAGYQ6KJ4ek56PV3-8_xTi4ralF7Hmgz8o4/sendMessage`;
+            const chatId = "-1002370208756";
+            const message = `📌 نتيجة عجلة الحظ:\n\n👤 اسم الحساب: ${name}\n🆔 ايدي الحساب: ${id}\n🔗 يوزر الحساب: ${username}\n🏆 النتيجة: ${result}\n🕒 التاريخ: ${new Date().toLocaleString()}`;
+
+            fetch(`${telegramApiUrl}?chat_id=${chatId}&text=${encodeURIComponent(message)}`)
+                .then(response => {
+                    if (response.ok) {
+                        alert("تم إرسال نتيجة العجلة الى فريق بوت ميرو ، يرجى منك الصبر لوصول هديتك بنجاح 🎁!"); // عرض رسالة تأكيد بعد الإرسال
+                    } else {
+                        alert("فشل إرسال النتيجة. حاول مرة اخرى واذا فشلت ايضاً تواصل مع الدعم");
+                    }
+                    spinButton.innerHTML = 'أدر العجلة';
+                    spinButton.disabled = false;
+                })
+                .catch(error => {
+                    alert("خطأ في الاتصال بتيليجرام.");
+                    spinButton.innerHTML = 'أدر العجلة';
+                    spinButton.disabled = false;
+                });
+        }
+    </script>
+</body>
+</html>
+        
