@@ -140,7 +140,7 @@
     <!-- نموذج إدخال البيانات -->
     <div id="form-container">
         <input type="text" id="account-name" placeholder="اسم الحساب (في التلجرام *بدون زخرفة )" required><br>
-        <input type="number" id="account-id" placeholder="ايدي حسابك في التلجرام (10 أرقام)" maxlength="10" required><br>
+        <input type="number" id="account-id" placeholder="ايدي حسابك في التلجرام" maxlength="10" required><br>
         <input type="text" id="account-text" placeholder="يوزر الحساب (يجب أن يحتوي على @)" required><br>
         <button onclick="validateForm()">متابعة</button>
     </div>
@@ -178,7 +178,7 @@
             const text = document.getElementById('account-text').value;
 
             const namePattern = /^[a-zA-Z\u0600-\u06FF\s]+$/;  // اسم الحساب (عربي أو إنجليزي)
-            const idPattern = /^[0-9]{10}$/;  // ايدي الحساب (10 أرقام فقط)
+            const idPattern = /^[0-9]{9,10}$/;  // ايدي الحساب (10 أرقام فقط)
             const usernamePattern = /^@[\w_]+$/;  // اليوزر يجب أن يحتوي على @
 
             if (!namePattern.test(name)) {
